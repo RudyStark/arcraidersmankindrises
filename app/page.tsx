@@ -646,9 +646,10 @@ export default function Home() {
           style={{
             position: "absolute",
             inset: 0,
-            backgroundImage: "url('/hero-bg.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center top",
+            backgroundImage: isMobile ? "url('/hero-bg-mobile.png')" : "url('/hero-bg.png')",
+            backgroundSize: isMobile ? "115% 100%" : "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: isMobile ? "top center" : "center top",
             filter: "brightness(0.78) saturate(0.88)",
             transform:
               mounted && isWide
