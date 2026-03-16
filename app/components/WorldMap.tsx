@@ -13,57 +13,71 @@ interface VoteLocation {
 export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
   const [rotation, setRotation] = useState<[number, number, number]>([-20, -20, 0]);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Refs — no stale closures, no effect re-creation
+  const rotRef = useRef<[number, number, number]>([-20, -20, 0]);
+  const isDraggingRef = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
-  const rotationRef = useRef(rotation);
+  const rafRef = useRef<number>(0);
 
-  // Keep ref in sync
-  useEffect(() => { rotationRef.current = rotation; }, [rotation]);
-
-  // Auto-rotate when not dragging
+  // Single rAF loop — runs once, never re-created
   useEffect(() => {
-    if (isDragging) return;
-    const id = setInterval(() => {
-      setRotation(r => [r[0] - 0.12, r[1], r[2]]);
-    }, 16);
-    return () => clearInterval(id);
-  }, [isDragging]);
+    let lastTime = performance.now();
 
-  const onMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    dragStart.current = { x: e.clientX, y: e.clientY };
-  };
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
-    setRotation(r => [r[0] - dx * 0.4, r[1] + dy * 0.4, r[2]]);
-    dragStart.current = { x: e.clientX, y: e.clientY };
-  };
-  const onMouseUp = () => setIsDragging(false);
+    const animate = (time: number) => {
+      const delta = time - lastTime;
+      lastTime = time;
 
-  // Touch support
-  const onTouchStart = (e: React.TouchEvent) => {
+      if (!isDraggingRef.current) {
+        rotRef.current = [
+          rotRef.current[0] - 0.007 * delta, // ~7°/sec
+          rotRef.current[1],
+          rotRef.current[2],
+        ];
+        setRotation([...rotRef.current]);
+      }
+
+      rafRef.current = requestAnimationFrame(animate);
+    };
+
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  const startDrag = (x: number, y: number) => {
+    isDraggingRef.current = true;
     setIsDragging(true);
-    dragStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    dragStart.current = { x, y };
   };
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const dx = e.touches[0].clientX - dragStart.current.x;
-    const dy = e.touches[0].clientY - dragStart.current.y;
-    setRotation(r => [r[0] - dx * 0.4, r[1] + dy * 0.4, r[2]]);
-    dragStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+  const moveDrag = (x: number, y: number) => {
+    if (!isDraggingRef.current) return;
+    const dx = x - dragStart.current.x;
+    const dy = y - dragStart.current.y;
+    rotRef.current = [
+      rotRef.current[0] - dx * 0.4,
+      rotRef.current[1] + dy * 0.4,
+      rotRef.current[2],
+    ];
+    setRotation([...rotRef.current]);
+    dragStart.current = { x, y };
+  };
+
+  const stopDrag = () => {
+    isDraggingRef.current = false;
+    setIsDragging(false);
   };
 
   return (
     <div
       style={{ width: "100%", maxWidth: 480, margin: "0 auto", cursor: isDragging ? "grabbing" : "grab" }}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onMouseUp}
+      onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
+      onMouseMove={(e) => moveDrag(e.clientX, e.clientY)}
+      onMouseUp={stopDrag}
+      onMouseLeave={stopDrag}
+      onTouchStart={(e) => startDrag(e.touches[0].clientX, e.touches[0].clientY)}
+      onTouchMove={(e) => moveDrag(e.touches[0].clientX, e.touches[0].clientY)}
+      onTouchEnd={stopDrag}
     >
       <ComposableMap
         projection="geoOrthographic"
@@ -73,18 +87,15 @@ export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
         style={{ width: "100%", height: "auto", display: "block" }}
       >
         <defs>
-          {/* Globe background gradient */}
           <radialGradient id="globe-bg" cx="38%" cy="32%" r="65%">
             <stop offset="0%" stopColor="#12151f" />
             <stop offset="100%" stopColor="#06080d" />
           </radialGradient>
 
-          {/* Orange continent glow */}
           <filter id="continent-glow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur-wide" />
             <feColorMatrix
-              in="blur-wide"
-              type="matrix"
+              in="blur-wide" type="matrix"
               values="1 0.5 0 0 0  0.4 0.2 0 0 0  0 0 0 0 0  0 0 0 0.8 0"
               result="orange-halo"
             />
@@ -96,12 +107,10 @@ export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
             </feMerge>
           </filter>
 
-          {/* Blue dot glow */}
           <filter id="dot-glow" x="-200%" y="-200%" width="500%" height="500%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
             <feColorMatrix
-              in="blur"
-              type="matrix"
+              in="blur" type="matrix"
               values="0 0 0 0 0.2  0 0 0 0 0.5  1 1 1 0 1  0 0 0 1.5 0"
               result="blue-glow"
             />
@@ -111,20 +120,15 @@ export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
             </feMerge>
           </filter>
 
-          {/* Rim light around globe edge */}
           <radialGradient id="rim-light" cx="50%" cy="50%" r="50%">
             <stop offset="82%" stopColor="transparent" />
             <stop offset="100%" stopColor="rgba(249,115,22,0.18)" />
           </radialGradient>
         </defs>
 
-        {/* Ocean */}
         <Sphere id="ocean" fill="url(#globe-bg)" stroke="rgba(249,115,22,0.12)" strokeWidth={0.8} />
-
-        {/* Graticule grid lines */}
         <Graticule stroke="rgba(249,115,22,0.06)" strokeWidth={0.4} />
 
-        {/* Continents */}
         <Geographies geography={GEO_URL}>
           {({ geographies }) =>
             geographies.map((geo) => (
@@ -145,7 +149,6 @@ export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
           }
         </Geographies>
 
-        {/* Vote dots */}
         {votes.map((vote, i) => (
           <Marker key={i} coordinates={[vote.lng, vote.lat]}>
             <circle r={5} fill="rgba(59,130,246,0.2)" filter="url(#dot-glow)" />
@@ -154,7 +157,6 @@ export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
           </Marker>
         ))}
 
-        {/* Rim light overlay */}
         <Sphere id="rim" fill="url(#rim-light)" stroke="none" strokeWidth={0} />
       </ComposableMap>
     </div>
