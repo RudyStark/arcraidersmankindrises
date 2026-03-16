@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const WorldMap = dynamic(() => import("./components/WorldMap"), { ssr: false });
 import {
   ChevronDown,
   Play,
@@ -234,8 +237,8 @@ function HypeButton({
         disabled={voted}
         style={{
           position: "relative",
-          padding: "16px 40px",
-          fontSize: 12,
+          padding: "11px 28px",
+          fontSize: 10,
           fontWeight: 700,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
@@ -461,6 +464,7 @@ export default function Home() {
   const [isWide, setIsWide] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hypeCount, setHypeCount] = useState<number | null>(null);
+  const [votes, setVotes] = useState<{ lat: number; lng: number }[]>([]);
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _heroRef = useRef<HTMLElement>(null);
@@ -474,10 +478,13 @@ export default function Home() {
     const storedLang = localStorage.getItem("arc_lang") as Lang | null;
     if (storedLang === "en" || storedLang === "fr") setLang(storedLang);
 
-    // Fetch real count from Redis
+    // Fetch count + vote locations
     fetch("/api/hype")
       .then((r) => r.json())
-      .then((data) => setHypeCount(data.count))
+      .then((data) => {
+        setHypeCount(data.count);
+        setVotes(data.votes ?? []);
+      })
       .catch(() => setHypeCount(0));
   }, []);
 
@@ -886,51 +893,78 @@ export default function Home() {
           }}
         />
 
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
+        {/* Two-column layout: left = counter, right = map */}
+        <div
           style={{
-            fontFamily: "'Orbitron', sans-serif",
-            fontSize: 10,
-            letterSpacing: "0.4em",
-            textTransform: "uppercase",
-            color: "#fb923c",
-            marginBottom: 16,
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1.6fr",
+            gap: isMobile ? 40 : 56,
+            alignItems: "center",
+            maxWidth: 1100,
+            margin: "0 auto",
+            position: "relative",
+            zIndex: 1,
           }}
         >
-          {t.hypeTitle}
-        </motion.p>
+          {/* Left: title + number + button */}
+          <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <motion.p
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: 10,
+                letterSpacing: "0.4em",
+                textTransform: "uppercase",
+                color: "#fb923c",
+                marginBottom: 16,
+              }}
+            >
+              {t.hypeTitle}
+            </motion.p>
 
-        <motion.div
-          key={hypeCount}
-          initial={{ scale: 1.18, opacity: 0.6 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
-          style={{
-            fontFamily: "'Orbitron', sans-serif",
-            fontSize: "clamp(64px, 12vw, 96px)",
-            fontWeight: 900,
-            color: "#fff",
-            textShadow:
-              "0 0 30px rgba(255,150,80,0.65), 0 0 70px rgba(255,100,40,0.28)",
-            marginBottom: 40,
-          }}
-        >
-          {hypeCount === null ? "—" : hypeCount.toLocaleString("en-US")}
-        </motion.div>
+            <motion.div
+              key={hypeCount}
+              initial={{ scale: 1.18, opacity: 0.6 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: "clamp(40px, 7vw, 64px)",
+                fontWeight: 900,
+                color: "#fff",
+                textShadow:
+                  "0 0 30px rgba(255,150,80,0.65), 0 0 70px rgba(255,100,40,0.28)",
+                marginBottom: 40,
+              }}
+            >
+              {hypeCount === null ? "—" : hypeCount.toLocaleString("en-US")}
+            </motion.div>
 
-        <HypeButton
-          label={t.hypeBtn}
-          doneLabel={t.hypeDone}
-          onVote={() => {
-            fetch("/api/hype", { method: "POST" })
-              .then((r) => r.json())
-              .then((data) => setHypeCount(data.count))
-              .catch(() => setHypeCount((c) => (c ?? 0) + 1));
-          }}
-        />
+            <HypeButton
+              label={t.hypeBtn}
+              doneLabel={t.hypeDone}
+              onVote={() => {
+                fetch("/api/hype", { method: "POST" })
+                  .then((r) => r.json())
+                  .then((data) => setHypeCount(data.count))
+                  .catch(() => setHypeCount((c) => (c ?? 0) + 1));
+              }}
+            />
+          </div>
+
+          {/* Right: world map */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <WorldMap votes={votes} />
+          </motion.div>
+        </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
