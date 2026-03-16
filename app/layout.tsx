@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
   title: "Arc Raiders: Mankind Rises — Coming Soon",
   description:
     "Une série fan post-apocalyptique inspirée du jeu ARC Raiders d'Embark Studios. Earth, 2180. The machines came from above. Humanity went below. Now we rise.",

@@ -37,7 +37,6 @@ const translations: Record<
     heroSuper: string;
     heroTitle: string;
     comingSoon: string;
-    tagline: string;
     hudSignal: string;
     hypeTitle: string;
     hypeBtn: string;
@@ -96,8 +95,6 @@ const translations: Record<
     heroSuper: "ARC RAIDERS",
     heroTitle: "MANKIND RISES",
     comingSoon: "BIENTÔT DISPONIBLE",
-    tagline:
-      "Quand les machines font taire le ciel, l'humanité creuse plus profond.",
     hudSignal: "[2180.XX.XX] — SIGNAL: ACTIF",
     hypeTitle: "COMBIEN DE RAIDERS ATTENDENT ?",
     hypeBtn: "J'attends ça !",
@@ -463,7 +460,7 @@ export default function Home() {
   const [scrollY, setScrollY] = useState(0);
   const [isWide, setIsWide] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [hypeCount, setHypeCount] = useState(1247);
+  const [hypeCount, setHypeCount] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _heroRef = useRef<HTMLElement>(null);
@@ -476,7 +473,12 @@ export default function Home() {
     setIsMobile(window.innerWidth < 640);
     const storedLang = localStorage.getItem("arc_lang") as Lang | null;
     if (storedLang === "en" || storedLang === "fr") setLang(storedLang);
-    if (localStorage.getItem("arc_voted") === "1") setHypeCount(1248);
+
+    // Fetch real count from Redis
+    fetch("/api/hype")
+      .then((r) => r.json())
+      .then((data) => setHypeCount(data.count))
+      .catch(() => setHypeCount(0));
   }, []);
 
   useEffect(() => {
@@ -796,22 +798,6 @@ export default function Home() {
             {t.comingSoon}
           </motion.div>
 
-          {/* Tagline */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 1.4 }}
-            style={{
-              color: "rgba(210,198,182,0.75)",
-              fontSize: "clamp(12px, 1.5vw, 15px)",
-              maxWidth: 440,
-              lineHeight: 1.8,
-              fontStyle: "italic",
-              textShadow: "0 1px 16px rgba(0,0,0,0.95)",
-            }}
-          >
-            {t.tagline}
-          </motion.p>
 
           {/* Fan-made disclaimer + ARC Raiders logo */}
           <motion.div
@@ -932,13 +918,18 @@ export default function Home() {
             marginBottom: 40,
           }}
         >
-          {hypeCount.toLocaleString("en-US")}
+          {hypeCount === null ? "—" : hypeCount.toLocaleString("en-US")}
         </motion.div>
 
         <HypeButton
           label={t.hypeBtn}
           doneLabel={t.hypeDone}
-          onVote={() => setHypeCount((c) => c + 1)}
+          onVote={() => {
+            fetch("/api/hype", { method: "POST" })
+              .then((r) => r.json())
+              .then((data) => setHypeCount(data.count))
+              .catch(() => setHypeCount((c) => (c ?? 0) + 1));
+          }}
         />
       </section>
 
