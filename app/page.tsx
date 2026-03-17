@@ -37,6 +37,7 @@ const translations: Record<
   Lang,
   {
     langBtn: string;
+    fanMade: string;
     heroSuper: string;
     heroTitle: string;
     comingSoon: string;
@@ -60,6 +61,7 @@ const translations: Record<
 > = {
   en: {
     langBtn: "FR",
+    fanMade: "A Fan-Made Series set in the universe of",
     heroSuper: "ARC RAIDERS",
     heroTitle: "MANKIND RISES",
     comingSoon: "COMING SOON",
@@ -95,6 +97,7 @@ const translations: Record<
   },
   fr: {
     langBtn: "EN",
+    fanMade: "Une série de fans dans l'univers d'",
     heroSuper: "ARC RAIDERS",
     heroTitle: "MANKIND RISES",
     comingSoon: "BIENTÔT DISPONIBLE",
@@ -830,7 +833,7 @@ export default function Home() {
                 textShadow: "0 0 16px rgba(0,0,0,0.9)",
               }}
             >
-              A Fan-Made Series set in the universe of
+              {t.fanMade}
             </span>
             <img
               src="/arc-raiders-logo.png"
@@ -1335,7 +1338,7 @@ export default function Home() {
           >
             {/* YouTube */}
             <motion.a
-              href="#"
+              href="https://youtube.com/@arcraidersmankindrises?si=gBZQD3b1g7ekAD2H"
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
@@ -1384,7 +1387,7 @@ export default function Home() {
 
             {/* Instagram */}
             <motion.a
-              href="#"
+              href="https://www.instagram.com/arcraidersmankindrises/"
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
