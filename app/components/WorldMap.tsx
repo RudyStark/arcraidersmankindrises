@@ -244,7 +244,7 @@ export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
     <div
       style={{
         width: "100%",
-        maxWidth: 460,
+        maxWidth: 240,
         margin: "0 auto",
         cursor: isDragging ? "grabbing" : "grab",
       }}
