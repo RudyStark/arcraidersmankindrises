@@ -4850,10 +4850,10 @@ function DonationModal({ onClose, lang }: { onClose: () => void; lang: Lang }) {
   );
 }
 
-// Local video path (served from /public). Set to "" to show "coming soon" state.
-const TEASER_VIDEO_PATH = "/videos/teaser/ep1/0427.mp4";
-// YouTube fallback (used when TEASER_VIDEO_PATH is empty)
-const TEASER_VIDEO_ID = "";
+// Local video path (served from /public). Set to "" to use YouTube instead.
+const TEASER_VIDEO_PATH = "";
+// YouTube video ID — used when TEASER_VIDEO_PATH is empty
+const TEASER_VIDEO_ID = "mY14F1UiRJ8";
 
 function TeaserModal({ onClose, lang }: { onClose: () => void; lang: Lang }) {
   const hasLocalVideo = TEASER_VIDEO_PATH.length > 0;
