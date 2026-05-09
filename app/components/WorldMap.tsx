@@ -134,39 +134,6 @@ export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
         ctx.restore();
       }
 
-      // ── Vote dots ──────────────────────────────────────────────────────────
-      votesRef.current.forEach(vote => {
-        const proj = projection([vote.lng, vote.lat]);
-        if (!proj) return;
-        const [x, y] = proj;
-
-        // Check if on visible hemisphere (dot product with view center)
-        const [rotLng, rotLat] = rotRef.current;
-        const viewLng = -rotLng * Math.PI / 180;
-        const viewLat = -rotLat * Math.PI / 180;
-        const voteLng = vote.lng * Math.PI / 180;
-        const voteLat = vote.lat * Math.PI / 180;
-        const dot =
-          Math.cos(viewLat) * Math.cos(voteLat) * Math.cos(voteLng - viewLng) +
-          Math.sin(viewLat) * Math.sin(voteLat);
-        if (dot < 0) return; // behind the globe
-
-        ctx.save();
-        ctx.shadowColor = "#3b82f6";
-        ctx.shadowBlur  = 12;
-        ctx.beginPath();
-        ctx.arc(x, y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = "#60a5fa";
-        ctx.fill();
-        // white core
-        ctx.shadowBlur = 0;
-        ctx.beginPath();
-        ctx.arc(x, y, 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = "#fff";
-        ctx.fill();
-        ctx.restore();
-      });
-
       // ── Rim light ──────────────────────────────────────────────────────────
       const rimGrad = ctx.createRadialGradient(cx, cy, radius * 0.82, cx, cy, radius);
       rimGrad.addColorStop(0, "transparent");
@@ -175,6 +142,40 @@ export default function WorldMap({ votes }: { votes: VoteLocation[] }) {
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
       ctx.fillStyle = rimGrad;
       ctx.fill();
+
+      // ── Vote dots (drawn last — on top of everything) ──────────────────────
+      votesRef.current.forEach(vote => {
+        const proj = projection([vote.lng, vote.lat]);
+        if (!proj) return;
+        const [x, y] = proj;
+
+        // projection([lng,lat]) doesn't apply clipAngle for individual points —
+        // manually reject points on the back hemisphere via dot product
+        const [rotLng, rotLat] = rotRef.current;
+        const viewLng = -rotLng * Math.PI / 180;
+        const viewLat = -rotLat * Math.PI / 180;
+        const pLng = vote.lng * Math.PI / 180;
+        const pLat = vote.lat * Math.PI / 180;
+        const dot =
+          Math.cos(viewLat) * Math.cos(pLat) * Math.cos(pLng - viewLng) +
+          Math.sin(viewLat) * Math.sin(pLat);
+        if (dot < 0) return;
+
+        ctx.save();
+        ctx.shadowColor = "#60a5fa";
+        ctx.shadowBlur  = 14;
+        ctx.beginPath();
+        ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#60a5fa";
+        ctx.fill();
+        // white core
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.restore();
+      });
     };
 
     let lastTime = performance.now();
