@@ -181,7 +181,7 @@ const T: Record<Lang, {
       { label: "Action",         value: 85 },
       { label: "Profondeur",     value: 88 },
       { label: "Effets Visuels", value: 82 },
-      { label: "World Building", value: 95git  },
+      { label: "World Building", value: 95 },
     ],
     specs: [
       { icon: Monitor, label: "Format",    value: "Série Fan — YouTube"                  },
