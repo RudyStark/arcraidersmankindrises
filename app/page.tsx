@@ -50,7 +50,7 @@ const T: Record<Lang, {
   en: {
     langBtn: "FR",
     comingSoon: "COMING SOON",
-    tagline: "The future hasn't fallen.\nIt's waiting for our rise.",
+    tagline: "The fight isn't over.\nIt begins with our rise.",
     joinBtn: "ENLIST",
     loreLabel: "LORE",
     charsLabel: "CHARACTERS",
@@ -98,7 +98,7 @@ const T: Record<Lang, {
       },
     ],
     aboutTitle: "ABOUT THE SERIES",
-    aboutText: "In 2180, deep beneath the Rust Belt of South Calabretta, Italy, the underground city-state of Toledo clings to survival. A group of Raiders from Speranza — the oldest contrada — unearth a truth buried beneath twenty years of rust and blood: the ARC machines descending from orbit aren't random. Someone is sending them.",
+    aboutText: "In 2180, deep beneath the Rust Belt of South Calabretta, Italy, the underground city-state of Toledo clings to survival. Above, on the Topside, a rogue squad of exiled Raiders unearths a truth buried beneath more than a century of rust and blood: the ARC machines descending from orbit aren't random. Someone is sending them.",
     ratings: [
       { label: "Action",         value: 92 },
       { label: "Lore Depth",     value: 88 },
@@ -128,7 +128,7 @@ const T: Record<Lang, {
   fr: {
     langBtn: "EN",
     comingSoon: "BIENTÔT DISPONIBLE",
-    tagline: "Le futur n'est pas tombé.\nIl attend notre relèvement.",
+    tagline: "Le combat n'est pas terminé.\nIl commence avec notre soulèvement.",
     joinBtn: "S'ENRÔLER",
     loreLabel: "LORE",
     charsLabel: "PERSONNAGES",
@@ -176,12 +176,12 @@ const T: Record<Lang, {
       },
     ],
     aboutTitle: "À PROPOS DE LA SÉRIE",
-    aboutText: "En 2180, au plus profond du Rust Belt de Calabretta Sud, Italie, la cité-État souterraine de Toledo s'accroche à la survie. Un groupe de Raiders de Speranza — la plus ancienne contrada — met au jour une vérité enfouie sous vingt ans de rouille et de sang : les machines ARC qui descendent de l'orbite ne sont pas aléatoires. Quelqu'un les envoie.",
+    aboutText: "En 2180, sous les profondeurs du Rust Belt au sud de la Calabre, Italie, la cité souterraine de Toledo s'accroche à la survie. Au-dessus, sur le Topside, un escadron de Raiders exilés déterre une vérité enfouie sous plus d'un siècle de rouille et de sang : les machines ARC qui descendent de l'orbite ne sont pas aléatoires. Quelqu'un les envoie.",
     ratings: [
-      { label: "Action",         value: 92 },
+      { label: "Action",         value: 85 },
       { label: "Profondeur",     value: 88 },
       { label: "Effets Visuels", value: 82 },
-      { label: "World Building", value: 95 },
+      { label: "World Building", value: 95git  },
     ],
     specs: [
       { icon: Monitor, label: "Format",    value: "Série Fan — YouTube"                  },
@@ -776,7 +776,7 @@ function RightHUD({ hypeCount, lang }: { hypeCount: number | null; lang: Lang })
               style={{ width:4,height:4,borderRadius:"50%",background:"#f97316",display:"inline-block" }} />
             <span style={{ fontFamily:"monospace",fontSize:7,letterSpacing:"0.36em",color:"rgba(249,115,22,0.75)",textTransform:"uppercase" }}>LAST UPDATE</span>
           </div>
-          <span style={{ fontFamily:"monospace",fontSize:6.5,letterSpacing:"0.18em",color:"rgba(56,189,248,0.55)" }}>v2.5.0</span>
+          <span style={{ fontFamily:"monospace",fontSize:6.5,letterSpacing:"0.18em",color:"rgba(56,189,248,0.55)" }}>v1.0.1</span>
         </div>
         <div style={{ padding:"12px 12px 8px", position:"relative", zIndex:2 }}>
           <motion.div animate={{ textShadow:["0 0 16px rgba(249,115,22,0.5)","0 0 28px rgba(249,115,22,0.85)","0 0 16px rgba(249,115,22,0.5)"] }} transition={{ duration:3, repeat:Infinity }}
@@ -935,7 +935,7 @@ function LastUpdateWidget({ mobile = false }: { mobile?: boolean }) {
             <span style={{ fontFamily: "monospace", fontSize: 7, letterSpacing: "0.36em", color: "rgba(249,115,22,0.75)", textTransform: "uppercase" }}>LAST UPDATE</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <span style={{ fontFamily: "monospace", fontSize: 6.5, letterSpacing: "0.18em", color: "rgba(56,189,248,0.55)" }}>v2.5.0</span>
+            <span style={{ fontFamily: "monospace", fontSize: 6.5, letterSpacing: "0.18em", color: "rgba(56,189,248,0.55)" }}>v1.0.1</span>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 1.5, marginLeft: 5 }}>
               {[3,5,7,4].map((h, i) => (
                 <motion.span key={i}
@@ -1243,13 +1243,22 @@ function TopNav({ title, onBack, lang }: { title: string; onBack: () => void; la
 // ─── Lore Timeline data ───────────────────────────────────────────────────────
 const LORE_TIMELINE = [
   {
+    year: "~1980s",
+    tag: "DAWN OF THE EXODUS PROGRAM", tagFr: "L'AUBE DU PROGRAMME EXODUS",
+    type: "origin" as const,
+    dot: "rgba(100,200,255,0.9)",
+    glow: "rgba(100,200,255,0.4)",
+    en: "As ecological instability begins to accelerate worldwide, a coalition of governments, corporations, and private interests quietly initiates the first orbital infrastructure projects. Early space shuttle prototypes are developed at facilities like Acerra Spaceport in southern Italy. The public narrative frames these programs as scientific exploration and resource mining. Behind closed doors, a select few begin planning long-term orbital habitation — not for humanity, but for those who can afford a seat. The seeds of betrayal are planted decades before the Collapse reaches its peak.",
+    fr: "Alors que l'instabilité écologique commence à s'accélérer à l'échelle mondiale, une coalition de gouvernements, de corporations et d'intérêts privés lance discrètement les premiers projets d'infrastructure orbitale. Les premiers prototypes de navettes spatiales sont développés dans des installations comme le Spatioport d'Acerra, dans le sud de l'Italie. Le récit officiel présente ces programmes comme de l'exploration scientifique et de l'exploitation de ressources. Derrière les portes closes, une poignée d'élus commence à planifier une habitation orbitale à long terme — non pas pour l'humanité, mais pour ceux qui peuvent se payer une place. Les graines de la trahison sont semées des décennies avant que l'Effondrement n'atteigne son apogée.",
+  },
+  {
     year: "~2054",
-    tag: "THE COLLAPSE / THE EXODUS", tagFr: "L'EFFONDREMENT / L'EXODE",
-    type: "dawn" as const,
+    tag: "THE TIPPING POINT / EXODUS", tagFr: "LE POINT DE NON-RETOUR / EXODUS",
+    type: "society" as const,
     dot: "rgba(255,210,80,0.9)",
     glow: "rgba(255,210,80,0.45)",
-    en: "The Ecological Collapse devastates Earth. Floods, fires, earthquakes, and global disasters shatter civilization, wiping out most of humanity. Around this same era, a handful of survivors — likely the wealthy, powerful, or technologically privileged — escape Earth through the Exodus. Acerra Spaceport and its launch towers remain as monuments to that desperate departure. The exact date is not canon, but ~2054 is one of the most plausible fan estimates.",
-    fr: "L'Effondrement Écologique ravage la Terre. Inondations, incendies, séismes et catastrophes mondiales brisent la civilisation, décimant la majeure partie de l'humanité. À cette même époque, une poignée de survivants — probablement les plus riches, les plus puissants ou les plus avantagés technologiquement — quitte la Terre lors de l'Exode. Le spatioport d'Acerra et ses tours de lancement restent les monuments de ce départ désespéré. La date exacte n'est pas canon, mais ~2054 est l'une des estimations fan les plus plausibles.",
+    en: "The Ecological Collapse reaches the point of no return. Earth is no longer viable for long-term civilization. The EXODUS protocol is activated — priority personnel and elites are evacuated to orbital station EX-01 from launch facilities including Acerra Spaceport. Those left behind are abandoned without warning. The spaceport falls silent. The launch towers remain as monuments to humanity's greatest betrayal.",
+    fr: "L'Effondrement Écologique atteint le point de non-retour. La Terre n'est plus viable pour une civilisation à long terme. Le protocole EXODUS est activé — le personnel prioritaire et les élites sont évacués vers la station orbitale EX-01 depuis des installations de lancement incluant le Spatioport d'Acerra. Ceux laissés derrière sont abandonnés sans avertissement. Le spatioport se tait. Les tours de lancement demeurent comme des monuments à la plus grande trahison de l'humanité.",
   },
   {
     year: "~2120–2140",
@@ -1345,6 +1354,16 @@ function TLIcon({ type, color, size = 15 }: { type: string; color: string; size?
       <path d="M2 10h16M10 2c-3 2.5-4 5-4 8s1 5.5 4 8M10 2c3 2.5 4 5 4 8s-1 5.5-4 8" stroke={c} strokeWidth="1.1"/>
     </svg>
   );
+  if (type === "origin") return (
+    <svg viewBox="0 0 20 20" width={size} height={size} fill="none">
+      <path d="M10 17V3c-2 1.5-3.5 4-3.5 6.5" stroke={c} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M10 17V3c2 1.5 3.5 4 3.5 6.5" stroke={c} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6.5 9.5L4 13h12l-2.5-3.5" stroke={c} strokeWidth="1.2" strokeLinejoin="round"/>
+      <line x1="7" y1="13" x2="6" y2="17" stroke={c} strokeWidth="1.1" strokeLinecap="round"/>
+      <line x1="13" y1="13" x2="14" y2="17" stroke={c} strokeWidth="1.1" strokeLinecap="round"/>
+      <line x1="10" y1="13" x2="10" y2="17" stroke={c} strokeWidth="1.1" strokeLinecap="round"/>
+    </svg>
+  );
   return (
     <svg viewBox="0 0 20 20" width={size} height={size} fill="none">
       <circle cx="10" cy="10" r="7.5" stroke={c} strokeWidth="1.3"/>
@@ -1360,6 +1379,7 @@ function TLIcon({ type, color, size = 15 }: { type: string; color: string; size?
 
 // ─── Timeline: per-event metrics ──────────────────────────────────────────────
 const TL_METRICS: Record<string, { l: string; lFr: string; v: number }[]> = {
+  origin:  [{ l: "STABILITY",    lFr: "STABILITÉ",     v: 68 }, { l: "CLASSIFIED",   lFr: "CLASSIFIÉ",    v: 95 }, { l: "BETRAYAL",     lFr: "TRAHISON",     v: 100 }],
   dawn:    [{ l: "SURVIVORS",    lFr: "SURVIVANTS",    v: 38 }, { l: "STABILITY",    lFr: "STABILITÉ",    v: 22 }, { l: "THREAT LVL",   lFr: "NIV. MENACE",  v: 15 }],
   attack:  [{ l: "ARC UNITS",   lFr: "UNITÉS ARC",    v: 80 }, { l: "CASUALTIES",   lFr: "PERTES",        v: 88 }, { l: "THREAT LVL",   lFr: "NIV. MENACE",  v: 84 }],
   society: [{ l: "ELITE FLED",  lFr: "ÉLITE FUIE",    v: 92 }, { l: "LEFT BEHIND",  lFr: "ABANDONNÉS",    v: 98 }, { l: "RESENTMENT",   lFr: "RESSENTIMENT", v: 95 }],
