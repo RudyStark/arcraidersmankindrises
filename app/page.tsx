@@ -5883,15 +5883,23 @@ export default function Home() {
                 {/* Logo icon */}
                 <motion.div
                   initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                  style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", marginBottom: 14, paddingLeft: sidebarHovered ? 0 : 0 }}
+                  style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", marginBottom: 14 }}
                 >
-                  <img src="/arc-raiders-logo.png" alt="ARC Raiders" style={{ height: 26, width: "auto", opacity: 0.75, filter: "drop-shadow(0 0 8px rgba(249,115,22,0.4))", flexShrink: 0 }} />
-                  <AnimatePresence>
-                    {sidebarHovered && (
-                      <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.2 }}
-                        className="glitch-img"
-                        style={{ width: 110, aspectRatio: "1547/161", marginLeft: 10, flexShrink: 0 }}
-                        aria-label="MANKIND RISES"
+                  <AnimatePresence mode="wait">
+                    {sidebarHovered ? (
+                      <motion.div key="open-logo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <img src="/arc-raiders-logo.png" alt="ARC Raiders" style={{ height: 26, width: "auto", opacity: 0.75, filter: "drop-shadow(0 0 8px rgba(249,115,22,0.4))", flexShrink: 0 }} />
+                        <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}
+                          className="glitch-img"
+                          style={{ width: 110, aspectRatio: "1547/161", marginLeft: 10, flexShrink: 0 }}
+                          aria-label="MANKIND RISES"
+                        />
+                      </motion.div>
+                    ) : (
+                      <motion.img key="radar-logo" src="/sidebar-radar.gif" alt="Radar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
+                        style={{ width: 42, height: 42, objectFit: "cover", borderRadius: 4, opacity: 0.82, filter: "drop-shadow(0 0 6px rgba(249,115,22,0.35))" }}
                       />
                     )}
                   </AnimatePresence>
@@ -6138,10 +6146,10 @@ export default function Home() {
                   flex: 1, padding: "0 2px", background: "none", border: "none",
                   borderRight: "1px solid rgba(249,115,22,0.07)", cursor: "pointer",
                 }}>
-                  <svg viewBox="0 0 14 14" style={{ width: isLandscape ? 11 : 13, height: isLandscape ? 11 : 13 }} fill="none" stroke="rgba(249,115,22,0.62)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 14 14" style={{ width: isLandscape ? 11 : 13, height: isLandscape ? 11 : 13 }} fill="none" stroke="rgba(249,115,22,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M1 6.5L7 1l6 5.5" /><path d="M2.5 5.5V12h3V8.5h3V12h3V5.5" />
                   </svg>
-                  {!isLandscape && <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(249,115,22,0.52)", textTransform: "uppercase" }}>HOME</span>}
+                  {!isLandscape && <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 6, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(249,115,22,0.78)", textTransform: "uppercase" }}>HOME</span>}
                 </button>
                 {menuItems.slice(0, 2).map((item) => {
                   const isAct = activePanel === item.id;
@@ -6154,8 +6162,8 @@ export default function Home() {
                       cursor: "pointer", position: "relative",
                     }}>
                       {isAct && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg,transparent,#f97316,transparent)" }} />}
-                      <item.icon style={{ width: isLandscape ? 11 : 13, height: isLandscape ? 11 : 13, color: isAct ? "#f97316" : "rgba(200,185,168,0.32)" }} />
-                      {!isLandscape && <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: isAct ? "#f97316" : "rgba(200,185,168,0.3)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                      <item.icon style={{ width: isLandscape ? 11 : 13, height: isLandscape ? 11 : 13, color: isAct ? "#f97316" : "rgba(220,205,188,0.72)" }} />
+                      {!isLandscape && <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: isAct ? "#f97316" : "rgba(220,205,188,0.68)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                         {lang === "fr" ? item.mobileFr : item.mobileEn}
                       </span>}
                     </button>
@@ -6179,8 +6187,8 @@ export default function Home() {
                       cursor: "pointer", position: "relative",
                     }}>
                       {isAct && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg,transparent,#f97316,transparent)" }} />}
-                      <item.icon style={{ width: isLandscape ? 11 : 13, height: isLandscape ? 11 : 13, color: isAct ? "#f97316" : "rgba(200,185,168,0.32)" }} />
-                      {!isLandscape && <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: isAct ? "#f97316" : "rgba(200,185,168,0.3)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                      <item.icon style={{ width: isLandscape ? 11 : 13, height: isLandscape ? 11 : 13, color: isAct ? "#f97316" : "rgba(220,205,188,0.72)" }} />
+                      {!isLandscape && <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: isAct ? "#f97316" : "rgba(220,205,188,0.68)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                         {lang === "fr" ? item.mobileFr : item.mobileEn}
                       </span>}
                     </button>
@@ -6194,8 +6202,8 @@ export default function Home() {
                   cursor: "pointer", position: "relative",
                 }}>
                   {activePanel === "enlist" && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg,transparent,#f97316,transparent)" }} />}
-                  <ArrowRight style={{ width: isLandscape ? 11 : 13, height: isLandscape ? 11 : 13, color: activePanel === "enlist" ? "#f97316" : "rgba(200,185,168,0.32)" }} />
-                  {!isLandscape && <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: activePanel === "enlist" ? "#f97316" : "rgba(200,185,168,0.3)", textTransform: "uppercase" }}>
+                  <ArrowRight style={{ width: isLandscape ? 11 : 13, height: isLandscape ? 11 : 13, color: activePanel === "enlist" ? "#f97316" : "rgba(220,205,188,0.72)" }} />
+                  {!isLandscape && <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 6, fontWeight: 700, letterSpacing: "0.12em", color: activePanel === "enlist" ? "#f97316" : "rgba(220,205,188,0.68)", textTransform: "uppercase" }}>
                     {lang === "fr" ? "CORPS" : "JOIN"}
                   </span>}
                 </button>
