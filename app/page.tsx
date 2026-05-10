@@ -776,7 +776,7 @@ function RightHUD({ hypeCount, lang }: { hypeCount: number | null; lang: Lang })
               style={{ width:4,height:4,borderRadius:"50%",background:"#f97316",display:"inline-block" }} />
             <span style={{ fontFamily:"monospace",fontSize:7,letterSpacing:"0.36em",color:"rgba(249,115,22,0.75)",textTransform:"uppercase" }}>LAST UPDATE</span>
           </div>
-          <span style={{ fontFamily:"monospace",fontSize:6.5,letterSpacing:"0.18em",color:"rgba(56,189,248,0.55)" }}>v1.0.1</span>
+          <span style={{ fontFamily:"monospace",fontSize:6.5,letterSpacing:"0.18em",color:"rgba(56,189,248,0.55)" }}>v1.0.2</span>
         </div>
         <div style={{ padding:"12px 12px 8px", position:"relative", zIndex:2 }}>
           <motion.div animate={{ textShadow:["0 0 16px rgba(249,115,22,0.5)","0 0 28px rgba(249,115,22,0.85)","0 0 16px rgba(249,115,22,0.5)"] }} transition={{ duration:3, repeat:Infinity }}
@@ -935,7 +935,7 @@ function LastUpdateWidget({ mobile = false }: { mobile?: boolean }) {
             <span style={{ fontFamily: "monospace", fontSize: 7, letterSpacing: "0.36em", color: "rgba(249,115,22,0.75)", textTransform: "uppercase" }}>LAST UPDATE</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <span style={{ fontFamily: "monospace", fontSize: 6.5, letterSpacing: "0.18em", color: "rgba(56,189,248,0.55)" }}>v1.0.1</span>
+            <span style={{ fontFamily: "monospace", fontSize: 6.5, letterSpacing: "0.18em", color: "rgba(56,189,248,0.55)" }}>v1.0.2</span>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 1.5, marginLeft: 5 }}>
               {[3,5,7,4].map((h, i) => (
                 <motion.span key={i}
@@ -4026,20 +4026,181 @@ function SpecialThanksBlock({ lang, isMobile }: { lang: Lang; isMobile: boolean 
 
 const CONTACT_EMAIL = "contact@arcraiders-mankindrises.com";
 
+// ─── Contact form definitions ─────────────────────────────────────────────────
+type ContactTopicKey = "bug" | "press" | "content" | "other";
+const TOPIC_KEYS: ContactTopicKey[] = ["bug", "content", "other"];
+
+interface ContactField {
+  key: string; labelFr: string; labelEn: string;
+  type: "text" | "select" | "textarea";
+  options?: string[]; phFr?: string; phEn?: string;
+}
+
+const CONTACT_FORMS: Record<ContactTopicKey, ContactField[]> = {
+  bug: [
+    { key: "bugType", labelFr: "Type de problème", labelEn: "Issue type", type: "select",
+      options: ["Erreur d'affichage / Display error", "Lien cassé / Broken link", "Performance", "Audio / Vidéo", "Autre / Other"] },
+    { key: "page",    labelFr: "Page / Section concernée", labelEn: "Affected page / section", type: "text",
+      phFr: "ex: Accueil, Codex, Épisodes…", phEn: "e.g: Home, Codex, Episodes…" },
+    { key: "browser", labelFr: "Navigateur & appareil",    labelEn: "Browser & device",         type: "text",
+      phFr: "ex: Chrome 124, iPhone 15…",    phEn: "e.g: Chrome 124, iPhone 15…" },
+    { key: "desc",    labelFr: "Description du problème",  labelEn: "Issue description",         type: "textarea",
+      phFr: "Décrivez ce que vous observez…", phEn: "Describe what you see…" },
+    { key: "steps",   labelFr: "Étapes pour reproduire",   labelEn: "Steps to reproduce",        type: "textarea",
+      phFr: "1. Aller sur…\n2. Cliquer sur…", phEn: "1. Go to…\n2. Click on…" },
+  ],
+  press: [
+    { key: "name",   labelFr: "Votre nom",            labelEn: "Your name",           type: "text",     phFr: "Prénom Nom",                  phEn: "First Last" },
+    { key: "org",    labelFr: "Organisation / Média",  labelEn: "Organization / Media",type: "text",     phFr: "ex: Le Monde, GameFR…",       phEn: "e.g: IGN, GameSpot…" },
+    { key: "subj",   labelFr: "Sujet",                 labelEn: "Subject",             type: "text",     phFr: "Objet de votre demande",      phEn: "Subject of your request" },
+    { key: "msg",    labelFr: "Message",               labelEn: "Message",             type: "textarea", phFr: "Votre message…",              phEn: "Your message…" },
+  ],
+  content: [
+    { key: "subj",   labelFr: "Sujet",                          labelEn: "Subject",              type: "text",     phFr: "ex: Idée pour l'épisode 2…", phEn: "e.g: Idea for episode 2…" },
+    { key: "epRef",  labelFr: "Référence épisode (si applicable)", labelEn: "Episode ref (if any)", type: "text",  phFr: "ex: EP.01 — EXODUS",         phEn: "e.g: EP.01 — EXODUS" },
+    { key: "msg",    labelFr: "Votre suggestion",                labelEn: "Your suggestion",      type: "textarea", phFr: "Partagez votre idée…",       phEn: "Share your idea…" },
+  ],
+  other: [
+    { key: "subj", labelFr: "Sujet",   labelEn: "Subject", type: "text",     phFr: "Objet de votre message", phEn: "Subject of your message" },
+    { key: "msg",  labelFr: "Message", labelEn: "Message", type: "textarea", phFr: "Votre message…",         phEn: "Your message…" },
+  ],
+};
+
+const TOPIC_SUBJECTS: Record<ContactTopicKey, { fr: string; en: string }> = {
+  bug:     { fr: "[BUG] Arc Raiders: Mankind Rises",        en: "[BUG] Arc Raiders: Mankind Rises" },
+  press:   { fr: "[PRESSE] Arc Raiders: Mankind Rises",     en: "[PRESS] Arc Raiders: Mankind Rises" },
+  content: { fr: "[SUGGESTION] Arc Raiders: Mankind Rises", en: "[SUGGESTION] Arc Raiders: Mankind Rises" },
+  other:   { fr: "[CONTACT] Arc Raiders: Mankind Rises",    en: "[CONTACT] Arc Raiders: Mankind Rises" },
+};
+
+function buildMailto(topic: ContactTopicKey, data: Record<string, string>, lang: Lang): string {
+  const fields = CONTACT_FORMS[topic];
+  let body = "";
+  for (const f of fields) {
+    const label = lang === "fr" ? f.labelFr : f.labelEn;
+    body += `${label}:\n${data[f.key] || "—"}\n\n`;
+  }
+  body += "─────────────────────────\nArc Raiders: Mankind Rises — Fan Series";
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(TOPIC_SUBJECTS[topic][lang])}&body=${encodeURIComponent(body)}`;
+}
+
+// ─── Contact Form Modal ───────────────────────────────────────────────────────
+function ContactFormModal({ topic, lang, onClose }: { topic: ContactTopicKey; lang: Lang; onClose: () => void }) {
+  const fields = CONTACT_FORMS[topic];
+  const [data, setData] = useState<Record<string, string>>(() => Object.fromEntries(fields.map(f => [f.key, ""])));
+  const topicLabels: Record<ContactTopicKey, { fr: string; en: string }> = {
+    bug:     { fr: "Bug & Problème technique", en: "Bug & Technical Issue" },
+    press:   { fr: "Informations & Presse",    en: "Press & Information" },
+    content: { fr: "Contenu & Suggestions",    en: "Content & Suggestions" },
+    other:   { fr: "Autre demande",            en: "Other Request" },
+  };
+  const topicIcons: Record<ContactTopicKey, string> = { bug: "◈", press: "◇", content: "⬡", other: "◉" };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", background: "rgba(10,12,18,0.95)", border: "1px solid rgba(249,115,22,0.2)",
+    borderRadius: 6, padding: "9px 12px", fontFamily: "monospace", fontSize: 11,
+    color: "#f0e8d8", outline: "none", resize: "vertical" as const,
+    letterSpacing: "0.04em", boxSizing: "border-box",
+  };
+
+  return (
+    <motion.div
+      key="contact-modal-overlay"
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 99900, background: "rgba(0,0,0,0.82)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 16px" }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 24 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.94, y: 24 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        onClick={e => e.stopPropagation()}
+        style={{ width: "100%", maxWidth: 500, background: "rgba(4,6,12,0.98)", border: "1px solid rgba(249,115,22,0.3)", borderRadius: 14, overflow: "hidden", maxHeight: "90vh", display: "flex", flexDirection: "column", position: "relative" }}
+      >
+        {/* scanlines */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.03) 3px,rgba(0,0,0,0.03) 4px)" }} />
+        {/* corner brackets */}
+        {(["top","bottom"] as const).flatMap(v => (["left","right"] as const).map(h => (
+          <div key={v+h} style={{ position: "absolute", [v]: 0, [h]: 0, width: 16, height: 16, zIndex: 2, pointerEvents: "none",
+            [`border${v[0].toUpperCase()+v.slice(1)}`]: "1.5px solid rgba(249,115,22,0.55)",
+            [`border${h[0].toUpperCase()+h.slice(1)}`]: "1.5px solid rgba(249,115,22,0.55)",
+          }} />
+        )))}
+
+        {/* ── Header ── */}
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 12, padding: "16px 20px", borderBottom: "1px solid rgba(249,115,22,0.12)", background: "rgba(249,115,22,0.04)", flexShrink: 0 }}>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f97316", boxShadow: "0 0 8px rgba(249,115,22,0.8)", flexShrink: 0 }} />
+          <span style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.38em", color: "rgba(249,115,22,0.5)", textTransform: "uppercase" }}>RAIDER_LINK // TRANSMISSION</span>
+          <div style={{ flex: 1 }} />
+          <span style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 13, color: "rgba(249,115,22,0.7)", marginRight: 4 }}>{topicIcons[topic]}</span>
+          <div style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", color: "#f0e8d8", textTransform: "uppercase" }}>
+            {lang === "fr" ? topicLabels[topic].fr : topicLabels[topic].en}
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 4px", color: "rgba(249,115,22,0.55)", fontSize: 16, lineHeight: 1, marginLeft: 8 }}>✕</button>
+        </div>
+
+        {/* ── Form body ── */}
+        <div style={{ position: "relative", zIndex: 1, overflowY: "auto", padding: "18px 20px", display: "flex", flexDirection: "column", gap: 14, flex: 1 }} className="hide-scrollbar">
+          {fields.map(f => {
+            const label = lang === "fr" ? f.labelFr : f.labelEn;
+            const ph    = lang === "fr" ? (f.phFr ?? "") : (f.phEn ?? "");
+            return (
+              <div key={f.key}>
+                <div style={{ fontFamily: "monospace", fontSize: 7.5, letterSpacing: "0.3em", color: "rgba(249,115,22,0.5)", textTransform: "uppercase", marginBottom: 6 }}>▸ {label}</div>
+                {f.type === "select" ? (
+                  <select value={data[f.key]} onChange={e => setData(d => ({ ...d, [f.key]: e.target.value }))}
+                    style={{ ...inputStyle, appearance: "none" as const }}>
+                    <option value="">{lang === "fr" ? "— Sélectionner —" : "— Select —"}</option>
+                    {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                ) : f.type === "textarea" ? (
+                  <textarea value={data[f.key]} onChange={e => setData(d => ({ ...d, [f.key]: e.target.value }))}
+                    placeholder={ph} rows={4} style={inputStyle} />
+                ) : (
+                  <input type="text" value={data[f.key]} onChange={e => setData(d => ({ ...d, [f.key]: e.target.value }))}
+                    placeholder={ph} style={inputStyle} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── Footer ── */}
+        <div style={{ position: "relative", zIndex: 1, display: "flex", gap: 10, padding: "14px 20px", borderTop: "1px solid rgba(249,115,22,0.1)", background: "rgba(0,0,0,0.4)", flexShrink: 0 }}>
+          <motion.button onClick={onClose} whileTap={{ scale: 0.95 }}
+            style={{ flex: 1, padding: "10px 0", background: "none", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 6, cursor: "pointer", fontFamily: "'Orbitron',sans-serif", fontSize: 8, fontWeight: 700, letterSpacing: "0.2em", color: "rgba(249,115,22,0.5)", textTransform: "uppercase" }}>
+            {lang === "fr" ? "ANNULER" : "CANCEL"}
+          </motion.button>
+          <motion.a href={buildMailto(topic, data, lang)} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} className="btn-pulse"
+            style={{ flex: 2, padding: "10px 0", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.55)", borderRadius: 6, cursor: "pointer", fontFamily: "'Orbitron',sans-serif", fontSize: 8, fontWeight: 700, letterSpacing: "0.2em", color: "#f97316", textTransform: "uppercase", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, clipPath: "polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)" }}>
+            <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 1v8M3.5 5.5L7 1l3.5 4.5" /><path d="M2 10h10v2H2z" />
+            </svg>
+            {lang === "fr" ? "PRÉPARER L'EMAIL" : "PREPARE EMAIL"}
+          </motion.a>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 const CONTACT_TOPICS_FR = [
   { icon: "◈", label: "Bug & Problème technique",  sub: "Erreur d'affichage, lien cassé, dysfonctionnement" },
-  { icon: "◇", label: "Informations & Presse",      sub: "Demandes médias, partenariats, collaborations" },
   { icon: "⬡", label: "Contenu & Suggestions",      sub: "Idées, retours sur les épisodes, fanart" },
   { icon: "◉", label: "Autre demande",              sub: "Toute autre question ou message" },
 ];
 const CONTACT_TOPICS_EN = [
   { icon: "◈", label: "Bug & Technical Issue",      sub: "Display error, broken link, malfunction" },
-  { icon: "◇", label: "Press & Information",         sub: "Media inquiries, partnerships, collaborations" },
   { icon: "⬡", label: "Content & Suggestions",      sub: "Ideas, episode feedback, fanart" },
   { icon: "◉", label: "Other Request",              sub: "Any other question or message" },
 ];
 
-function ContactBlock({ lang }: { lang: Lang }) {
+function ContactBlock({ lang, onTopicSelect }: { lang: Lang; onTopicSelect: (t: ContactTopicKey) => void }) {
   const topics = lang === "fr" ? CONTACT_TOPICS_FR : CONTACT_TOPICS_EN;
   const [copied, setCopied] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -4272,54 +4433,60 @@ function ContactBlock({ lang }: { lang: Lang }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: isMobileContact ? "1fr" : "1fr 1fr", gap: 10 }}>
           {topics.map((t, i) => (
-            <motion.div
+            <motion.button
               key={t.label}
+              onClick={() => onTopicSelect(TOPIC_KEYS[i])}
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 + i * 0.07, duration: 0.4 }}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
               onMouseEnter={() => setHoveredIdx(i)}
               onMouseLeave={() => setHoveredIdx(null)}
               style={{
                 display: "flex", alignItems: "flex-start", gap: 12,
-                padding: "12px 14px",
-                background: hoveredIdx === i ? "rgba(249,115,22,0.06)" : "rgba(249,115,22,0.02)",
-                border: `1px solid ${hoveredIdx === i ? "rgba(249,115,22,0.22)" : "rgba(249,115,22,0.07)"}`,
-                borderRadius: 8,
-                cursor: "default",
+                padding: "12px 14px", textAlign: "left",
+                background: hoveredIdx === i ? "rgba(249,115,22,0.08)" : "rgba(249,115,22,0.02)",
+                border: `1px solid ${hoveredIdx === i ? "rgba(249,115,22,0.3)" : "rgba(249,115,22,0.07)"}`,
+                borderRadius: 8, cursor: "pointer",
                 transition: "background 0.25s, border-color 0.25s",
               }}
             >
-              <span style={{ fontFamily: "monospace", fontSize: 15, color: "rgba(249,115,22,0.5)", lineHeight: 1.3, flexShrink: 0 }}>{t.icon}</span>
-              <div>
+              <span style={{ fontFamily: "monospace", fontSize: 15, color: "rgba(249,115,22,0.6)", lineHeight: 1.3, flexShrink: 0 }}>{t.icon}</span>
+              <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: "'Orbitron',sans-serif", fontSize: "clamp(8px,0.85vw,10px)", fontWeight: 700, letterSpacing: "0.15em", color: "#f0e8d8", textTransform: "uppercase", marginBottom: 4 }}>{t.label}</div>
-                <div style={{ fontFamily: "monospace", fontSize: "clamp(8px,0.78vw,9.5px)", letterSpacing: "0.06em", color: "rgba(200,185,165,0.42)", lineHeight: 1.6 }}>{t.sub}</div>
+                <div style={{ fontFamily: "monospace", fontSize: "clamp(8px,0.78vw,9.5px)", letterSpacing: "0.06em", color: "rgba(200,185,165,0.5)", lineHeight: 1.6 }}>{t.sub}</div>
               </div>
-            </motion.div>
+              <svg viewBox="0 0 10 10" width="9" height="9" fill="none" stroke="rgba(249,115,22,0.4)" strokeWidth="1.4" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 2 }}>
+                <path d="M2 5h6M5 2l3 3-3 3" />
+              </svg>
+            </motion.button>
           ))}
         </div>
       </div>
+
     </motion.div>
   );
 }
 
-function CodexPanel({ lang, onClose, hypeCount, votes, onVote }: {
+function CodexPanel({ lang, onClose, hypeCount, votes, onVote, onContactTopic }: {
   lang: Lang; onClose: () => void;
   hypeCount: number | null;
   votes: { lat: number; lng: number }[];
   onVote: () => void;
+  onContactTopic: (t: ContactTopicKey) => void;
 }) {
   const CREDITS_FR = [
     { role: "CRÉATEUR & RÉALISATEUR",  name: "Rudy Saksik"    },
     { role: "SCÉNARIO",                name: "Rudy Saksik"    },
     { role: "DIRECTION ARTISTIQUE",    name: "ARC Raiders: Mankind Rises Team" },
-    { role: "MUSIQUE ORIGINALE",       name: "À CONFIRMER"    },
+    { role: "MUSIQUE ORIGINALE",       name: "TIO-B"    },
     { role: "INSPIRÉ DE",              name: "ARC Raiders — Embark Studios" },
   ];
   const CREDITS_EN = [
     { role: "CREATOR & DIRECTOR",      name: "Rudy Saksik"    },
     { role: "SCREENPLAY",              name: "Rudy Saksik"    },
     { role: "ART DIRECTION",           name: "ARC Raiders: Mankind Rises Team" },
-    { role: "ORIGINAL SCORE",          name: "TBD"            },
+    { role: "ORIGINAL SCORE",          name: "TIO-B"            },
     { role: "INSPIRED BY",             name: "ARC Raiders — Embark Studios" },
   ];
   const credits = lang === "fr" ? CREDITS_FR : CREDITS_EN;
@@ -4552,7 +4719,7 @@ function CodexPanel({ lang, onClose, hypeCount, votes, onVote }: {
           {lang === "fr" ? "▸ CONTACT & SIGNALEMENT" : "▸ CONTACT & REPORTS"}
         </div>
 
-        <ContactBlock lang={lang} />
+        <ContactBlock lang={lang} onTopicSelect={onContactTopic} />
       </motion.div>
 
       {/* ── Legal disclaimer ── */}
@@ -5403,8 +5570,9 @@ export default function Home() {
   const [panelTransition, setPanelTransition] = useState<{
     active: boolean; label: string; phase: "in" | "hold" | "out";
   }>({ active: false, label: "", phase: "in" });
-  const [showTeaser, setShowTeaser]     = useState(false);
-  const [showDonation, setShowDonation] = useState(false);
+  const [showTeaser, setShowTeaser]       = useState(false);
+  const [showDonation, setShowDonation]   = useState(false);
+  const [contactTopic, setContactTopic]   = useState<ContactTopicKey | null>(null);
 
   const t = T[lang];
 
@@ -5635,8 +5803,8 @@ export default function Home() {
               position: "absolute", inset: "-4% -3%",
               willChange: "transform, opacity, filter",
               overflow: "hidden",
-              x: activePanel ? 0 : bgParX,
-              y: activePanel ? 0 : bgParY,
+              x: activePanel || isMobile ? 0 : bgParX,
+              y: activePanel || isMobile ? 0 : bgParY,
             }}>
             <img
               src={activePanel
@@ -5661,7 +5829,7 @@ export default function Home() {
               position: "absolute", inset: "-6% -5%",
               background: "radial-gradient(ellipse at 55% 55%, rgba(249,115,22,0.09) 0%, rgba(30,60,120,0.06) 45%, transparent 70%)",
               pointerEvents: "none", zIndex: 1,
-              x: midParX, y: midParY,
+              x: isMobile ? 0 : midParX, y: isMobile ? 0 : midParY,
             }}
           />
         )}
@@ -5673,7 +5841,7 @@ export default function Home() {
               position: "absolute", inset: "-8% -6%",
               background: "radial-gradient(ellipse at 50% 48%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.82) 100%)",
               pointerEvents: "none", zIndex: 2,
-              x: fgParX, y: fgParY,
+              x: isMobile ? 0 : fgParX, y: isMobile ? 0 : fgParY,
             }}
           />
         )}
@@ -5993,7 +6161,7 @@ export default function Home() {
                 {activePanel === "episodes"    && <EpisodesPanel   t={t} lang={lang} onClose={() => changingPanel("episodes")} onTeaser={() => setShowTeaser(true)} />}
                 {activePanel === "soundtracks" && <SoundtrackPanel    onClose={() => changingPanel("soundtracks")} lang={lang} />}
                 {activePanel === "enlist"      && <EnlistPanel lang={lang} onClose={() => changingPanel("enlist")} />}
-                {activePanel === "codex"       && <CodexPanel lang={lang} onClose={() => changingPanel("codex")} hypeCount={hypeCount} votes={votes} onVote={handleVote} />}
+                {activePanel === "codex"       && <CodexPanel lang={lang} onClose={() => changingPanel("codex")} hypeCount={hypeCount} votes={votes} onVote={handleVote} onContactTopic={setContactTopic} />}
               </div>
             </motion.div>
           )}
@@ -6012,8 +6180,9 @@ export default function Home() {
               style={{
                 position: "fixed", inset: 0, zIndex: 9100,
                 overflowY: "auto",
+                overscrollBehavior: "none",
                 display: "flex", flexDirection: "column",
-                background: "linear-gradient(to bottom,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.62) 38%,rgba(0,0,0,0.94) 68%,rgba(0,0,0,0.98) 100%)",
+                background: "linear-gradient(to bottom,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.42) 30%,rgba(0,0,0,0.86) 62%,rgba(0,0,0,0.97) 100%)",
               }}
             >
               {/* Top spacer — widget overlaid at bottom, no extra scroll */}
@@ -6341,6 +6510,13 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Contact form modal — last in DOM, highest z-index, outside any transformed container */}
+      <AnimatePresence>
+        {contactTopic && (
+          <ContactFormModal key="contact-form" topic={contactTopic} lang={lang} onClose={() => setContactTopic(null)} />
+        )}
+      </AnimatePresence>
     </>
   );
 }
